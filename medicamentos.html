@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HogarStock · Medicamentos</title>
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
+  <style>
+    :root,[data-theme="light"]{
+      --text-xs:clamp(.75rem,.7rem + .25vw,.875rem);--text-sm:clamp(.875rem,.8rem + .35vw,1rem);--text-base:clamp(1rem,.95rem + .25vw,1.125rem);--text-lg:clamp(1.125rem,1rem + .75vw,1.5rem);--text-xl:clamp(1.5rem,1.2rem + 1.25vw,2.25rem);
+      --space-1:.25rem;--space-2:.5rem;--space-3:.75rem;--space-4:1rem;--space-5:1.25rem;--space-6:1.5rem;--space-8:2rem;
+      --color-bg:#f7f6f2;--color-surface:#f9f8f5;--color-surface-2:#fbfbf9;--color-surface-offset:#f3f0ec;--color-border:#d4d1ca;--color-divider:#dcd9d5;--color-text:#28251d;--color-text-muted:#6f6d67;--color-text-inverse:#f9f8f4;--color-primary:#01696f;--color-primary-hover:#0c4e54;--color-warning:#d19900;--color-warning-text:#8b6500;--color-error:#a13544;--color-success:#437a22;--color-info:#3b5ea8;
+      --radius-sm:.375rem;--radius-md:.5rem;--radius-lg:.75rem;--radius-xl:1rem;--shadow-sm:0 1px 2px rgba(0,0,0,.06);--shadow-md:0 8px 24px rgba(0,0,0,.08);--transition:180ms cubic-bezier(.16,1,.3,1);
+      --font-body:'Satoshi',system-ui,sans-serif;
+    }
+    [data-theme="dark"]{--color-bg:#171614;--color-surface:#1c1b19;--color-surface-2:#201f1d;--color-surface-offset:#23211f;--color-border:#393836;--color-divider:#262523;--color-text:#ece8df;--color-text-muted:#aaa69d;--color-text-inverse:#171614;--color-primary:#4f98a3;--color-primary-hover:#227f8b;--color-warning:#edb336;--color-warning-text:#edb336;--color-error:#dd6974;--color-success:#6daa45;--color-info:#7f9fe0;--shadow-sm:0 1px 2px rgba(0,0,0,.25);--shadow-md:0 12px 32px rgba(0,0,0,.35)}
+    *,*:before,*:after{box-sizing:border-box} html,body{height:100%;margin:0;overflow:hidden} body{font-family:var(--font-body);font-size:var(--text-base);background:var(--color-bg);color:var(--color-text)} button,input,select,textarea{font:inherit;color:inherit} button{cursor:pointer;border:none} table{width:100%;border-collapse:collapse}
+    .dashboard{display:grid;grid-template-columns:260px 1fr;grid-template-rows:auto 1fr;height:100dvh}
+    .sidebar{grid-row:1/-1;background:var(--color-surface);border-right:1px solid var(--color-border);padding:var(--space-6);overflow:auto;display:flex;flex-direction:column;gap:var(--space-6)}
+    .header{grid-column:2;background:color-mix(in srgb, var(--color-surface) 88%, transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--color-border);display:flex;gap:var(--space-4);align-items:center;justify-content:space-between;padding:var(--space-4) var(--space-6);position:sticky;top:0;z-index:5;flex-wrap:wrap}
+    .main{grid-column:2;overflow:auto;padding:var(--space-6);display:grid;gap:var(--space-6);align-content:start}
+    .logo{display:flex;align-items:center;gap:var(--space-3)} .logo svg{width:34px;height:34px;color:var(--color-primary);flex:none} .logo strong{font-size:var(--text-lg)}
+    .nav{display:grid;gap:var(--space-2)} .nav a{display:flex;align-items:center;gap:var(--space-3);padding:.65rem .8rem;border-radius:var(--radius-md);color:var(--color-text);text-decoration:none;font-size:var(--text-sm);font-weight:500} .nav a:hover{background:var(--color-surface-offset)} .nav a.active{background:color-mix(in srgb,var(--color-primary) 14%,transparent);color:var(--color-primary);font-weight:700} .nav svg{width:20px;height:20px;flex:none}
+    .nav-note{color:var(--color-text-muted);font-size:var(--text-sm);line-height:1.5;margin:0}
+    .settings{display:grid;gap:var(--space-3);padding:var(--space-4);background:var(--color-surface-2);border:1px solid var(--color-border);border-radius:var(--radius-lg)}
+    .settings .row{display:grid;grid-template-columns:1fr 4.2rem;align-items:center;gap:var(--space-2);line-height:1.3} .settings input{width:100%;padding:.45rem .5rem;text-align:right}
+    .controls{display:flex;gap:var(--space-3);align-items:center;flex-wrap:wrap}
+    .search,.filter,.number,.text,textarea{background:var(--color-surface-2);border:1px solid var(--color-border);border-radius:var(--radius-md);padding:.65rem .8rem;color:var(--color-text);min-width:0}
+    .number{font-variant-numeric:tabular-nums}
+    .btn{padding:.7rem 1rem;border-radius:var(--radius-md);transition:background var(--transition);font-size:var(--text-sm);font-weight:500;white-space:nowrap} .btn-primary{background:var(--color-primary);color:var(--color-text-inverse)} .btn-primary:hover{background:var(--color-primary-hover)} .btn-secondary{background:var(--color-surface-offset);color:var(--color-text);border:1px solid var(--color-border)} .btn-danger{background:var(--color-error);color:#fff}
+    .grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:var(--space-4)}
+    .card{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-xl);padding:var(--space-5);box-shadow:var(--shadow-sm);border-top:4px solid var(--accent,var(--color-border))}
+    .section-title{margin:0 0 var(--space-1);font-size:var(--text-lg);font-weight:700} .muted{color:var(--color-text-muted);font-size:var(--text-sm)} .metric{font-size:var(--text-xl);font-weight:700;font-variant-numeric:tabular-nums lining-nums}
+    .layout{display:grid;grid-template-columns:1.5fr 1fr;gap:var(--space-4);align-items:start}
+    .panel{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-xl);box-shadow:var(--shadow-sm);min-width:0}
+    .panel-head{padding:var(--space-4) var(--space-5);border-bottom:1px solid var(--color-divider);display:flex;justify-content:space-between;gap:var(--space-3);align-items:center;flex-wrap:wrap}
+    .table-scroll{overflow:auto;max-height:70dvh;border-radius:0 0 var(--radius-xl) var(--radius-xl)}
+    th,td{padding:.8rem .75rem;border-bottom:1px solid var(--color-divider);text-align:left;font-size:var(--text-sm);vertical-align:middle} th{position:sticky;top:0;background:var(--color-surface);z-index:1;font-size:var(--text-xs);text-transform:uppercase;letter-spacing:.05em;color:var(--color-text-muted)}
+    td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+    tbody tr:hover{background:color-mix(in srgb, var(--color-surface-offset) 75%, transparent)}
+    .row-critical{background:color-mix(in srgb,var(--color-error) 8%, var(--color-surface))} .row-low{background:color-mix(in srgb,var(--color-warning) 8%, var(--color-surface))}
+    .status{display:inline-flex;align-items:center;gap:.35rem;padding:.25rem .55rem;border-radius:999px;font-size:var(--text-xs);font-weight:700;white-space:nowrap}
+    .st-ok{background:color-mix(in srgb,var(--color-success) 16%, transparent);color:var(--color-success)} .st-low{background:color-mix(in srgb,var(--color-warning) 20%, transparent);color:var(--color-warning-text)} .st-critical{background:color-mix(in srgb,var(--color-error) 16%, transparent);color:var(--color-error)} .st-info{background:color-mix(in srgb,var(--color-info) 16%, transparent);color:var(--color-info)} .st-muted{background:var(--color-surface-offset);color:var(--color-text-muted)}
+    .bar{height:6px;border-radius:999px;background:var(--color-surface-offset);overflow:hidden;margin-top:.35rem;min-width:90px} .bar span{display:block;height:100%;border-radius:999px}
+    .actions{display:flex;gap:.35rem;flex-wrap:nowrap} .table-scroll table{min-width:1180px} .icon-btn{padding:.4rem .6rem;border-radius:var(--radius-sm);background:var(--color-surface-offset);border:1px solid var(--color-border);font-size:var(--text-xs);white-space:nowrap} .icon-btn:hover{border-color:var(--color-primary)} .icon-btn.primary{background:var(--color-primary);color:var(--color-text-inverse);border-color:var(--color-primary)}
+    .alerts{display:grid;gap:var(--space-2);padding:var(--space-4)}
+    .alert{display:grid;grid-template-columns:auto 1fr;gap:var(--space-3);padding:var(--space-3) var(--space-4);border-radius:var(--radius-lg);border:1px solid var(--color-border);background:var(--color-surface-2);border-left:4px solid var(--c)}
+    .alert .dot{width:10px;height:10px;border-radius:50%;background:var(--c);margin-top:.4rem}
+    .alert strong{display:block} .alert .muted{line-height:1.45}
+    .timeline{display:grid;padding:var(--space-2) var(--space-4) var(--space-4)} .tl-item{display:grid;grid-template-columns:4.2rem 1fr;gap:var(--space-3);padding:var(--space-3) 0;border-bottom:1px solid var(--color-divider)} .tl-item:last-child{border-bottom:none}
+    .tl-date{font-weight:700;font-variant-numeric:tabular-nums;font-size:var(--text-sm)} .tl-date small{display:block;font-weight:400;color:var(--color-text-muted);font-size:var(--text-xs)}
+    .kicker{font-size:var(--text-xs);text-transform:uppercase;letter-spacing:.08em;color:var(--color-text-muted);font-weight:700}
+    .empty{padding:var(--space-6);text-align:center;color:var(--color-text-muted);font-size:var(--text-sm)}
+    dialog{border:1px solid var(--color-border);border-radius:var(--radius-xl);padding:0;background:var(--color-surface);color:var(--color-text);width:min(560px,calc(100vw - 32px));box-shadow:var(--shadow-md)} dialog::backdrop{background:rgba(0,0,0,.45)}
+    .form{display:grid;gap:var(--space-3);padding:var(--space-5);max-height:75dvh;overflow:auto} .form-row{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3)} .form label{font-size:var(--text-sm);font-weight:700;display:grid;gap:.3rem} .form input,.form select,.form textarea{width:100%}
+    .check{display:flex !important;align-items:center;gap:.5rem;font-weight:500 !important} .check input{width:auto}
+    .help{font-size:var(--text-xs);color:var(--color-text-muted);font-weight:400}
+    .dialog-foot{display:flex;justify-content:flex-end;gap:var(--space-2);padding:var(--space-4) var(--space-5);border-top:1px solid var(--color-divider)}
+    .chip{font-size:var(--text-xs);color:var(--color-text-muted);background:var(--color-surface-offset);border-radius:999px;padding:.15rem .5rem;white-space:nowrap}
+    .hidden{display:none !important}
+    @media (max-width:1180px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}.layout{grid-template-columns:1fr}}
+    @media (max-width:1024px){.dashboard{grid-template-columns:76px 1fr}.sidebar{padding:var(--space-4)}.sidebar .nav-note,.sidebar .logo div,.sidebar .menu-text,.sidebar .settings{display:none}.nav a{justify-content:center}}
+    @media (max-width:720px){html,body{overflow:auto}.dashboard{display:block;height:auto}.sidebar{flex-direction:row;align-items:center;justify-content:space-between;border-right:none;border-bottom:1px solid var(--color-border);padding:var(--space-3) var(--space-4)}.nav{grid-auto-flow:column}.header{padding:var(--space-3) var(--space-4)}.main{padding:var(--space-4)}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.form-row{grid-template-columns:1fr}.controls{width:100%}.controls .search{flex:1 1 100%}.table-scroll{max-height:none}}
+  </style>
+</head>
+<body>
+<div class="dashboard">
+  <aside class="sidebar">
+    <div class="logo">
+      <svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
+        <rect x="8" y="18" width="48" height="36" rx="10" stroke="currentColor" stroke-width="4"/>
+        <path d="M18 18L32 8l14 10" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M32 28v16M24 36h16" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+      </svg>
+      <div><strong>HogarStock</strong><div class="muted">Botiquín familiar</div></div>
+    </div>
+    <nav class="nav">
+      <a href="index.html" title="Inventario hogar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/></svg><span class="menu-text">Inventario hogar</span></a>
+      <a href="medicamentos.html" class="active" title="Medicamentos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="12" rx="6" transform="rotate(-45 12 14)"/><path d="M8.5 10.5l5 5"/></svg><span class="menu-text">Medicamentos</span></a>
+    </nav>
+    <div class="settings">
+      <div class="kicker">Umbrales de alerta (días)</div>
+      <label class="row muted" for="setCritical">Rojo si quedan ≤ <input id="setCritical" class="number" type="number" min="1"></label>
+      <label class="row muted" for="setWarn">Amarillo si quedan ≤ <input id="setWarn" class="number" type="number" min="1"></label>
+      <label class="row muted" for="setExpiry">Aviso vencimiento <input id="setExpiry" class="number" type="number" min="1"></label>
+      <label class="row muted" for="setRxExpiry">Aviso receta caduca <input id="setRxExpiry" class="number" type="number" min="1"></label>
+    </div>
+    <p class="nav-note">Los datos se guardan en este navegador. Exporta un respaldo JSON periódicamente e impórtalo en otro dispositivo para sincronizar.</p>
+  </aside>
+
+  <header class="header">
+    <div>
+      <div class="kicker">Botiquín · <span id="todayLabel"></span></div>
+      <div style="font-size:var(--text-xl);font-weight:700">Medicamentos y recetas</div>
+    </div>
+    <div class="controls">
+      <input id="searchInput" class="search" type="search" placeholder="Buscar medicamento" aria-label="Buscar medicamento">
+      <select id="personFilter" class="filter" aria-label="Filtrar por persona"></select>
+      <button class="btn btn-secondary" id="themeToggle" aria-label="Cambiar tema">Tema</button>
+      <button class="btn btn-secondary" id="exportBtn">Exportar</button>
+      <button class="btn btn-secondary" id="importBtn">Importar</button>
+      <input type="file" id="importFile" accept="application/json,.json" class="hidden">
+    </div>
+  </header>
+
+  <main class="main">
+    <section class="grid" id="metrics"></section>
+
+    <section class="layout">
+      <div class="panel">
+        <div class="panel-head">
+          <div><div class="section-title">Alertas</div><div class="muted">Qué hacer hoy, ordenado por urgencia.</div></div>
+        </div>
+        <div class="alerts" id="alertList"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head">
+          <div><div class="section-title">Próximas fechas</div><div class="muted">Compras habilitadas, quiebres y vencimientos (60 días).</div></div>
+        </div>
+        <div class="timeline" id="timeline"></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div><div class="section-title">Stock de medicamentos</div><div class="muted">El stock se descuenta solo según la dosis diaria desde el último conteo. Edita la cifra para corregir el conteo.</div></div>
+        <button class="btn btn-primary" id="addMedBtn">+ Medicamento</button>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Medicamento</th><th>Persona</th><th>Stock actual</th><th>Dosis / día</th><th>Cobertura</th><th>Vencimiento</th><th>Receta</th><th>Estado</th><th>Acciones</th></tr></thead>
+          <tbody id="medBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div><div class="section-title">Registro de recetas</div><div class="muted">Recetas ingresadas al sistema de la farmacia y fecha en que se habilita la siguiente compra.</div></div>
+        <button class="btn btn-primary" id="addRxBtn">+ Receta</button>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Medicamento</th><th>Médico / Farmacia</th><th>Ingresada</th><th>Válida hasta</th><th>Compras</th><th>Próxima compra</th><th>Estado</th><th>Acciones</th></tr></thead>
+          <tbody id="rxBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="controls" style="justify-content:flex-end">
+      <button class="btn btn-secondary" id="resetBtn">Restaurar datos de ejemplo</button>
+    </div>
+  </main>
+</div>
+
+<!-- Diálogo medicamento -->
+<dialog id="medDialog">
+  <form method="dialog" id="medForm">
+    <div class="panel-head"><div class="section-title" id="medDialogTitle">Medicamento</div></div>
+    <div class="form">
+      <label>Nombre y concentración<input class="text" name="name" required placeholder="Ej. Losartán 50 mg"></label>
+      <div class="form-row">
+        <label>Persona<input class="text" name="person" list="personList" placeholder="Ej. Mamá"></label>
+        <label>Unidad
+          <select class="filter" name="unit">
+            <option value="comp.">Comprimidos</option><option value="cáps.">Cápsulas</option><option value="ml">ml</option><option value="gotas">Gotas</option><option value="dosis">Dosis / puff</option><option value="sobres">Sobres</option><option value="unid.">Unidades</option>
+          </select>
+        </label>
+      </div>
+      <div class="form-row">
+        <label>Stock actual<input class="number" name="qty" type="number" min="0" step="any" required></label>
+        <label>Dosis diaria<input class="number" name="dailyDose" type="number" min="0" step="any" required><span class="help">0 = uso ocasional (sin cálculo de cobertura)</span></label>
+      </div>
+      <div class="form-row">
+        <label>Tamaño del envase<input class="number" name="packSize" type="number" min="0" step="any" placeholder="Ej. 30"></label>
+        <label>Fecha de vencimiento<input class="text" name="expiry" type="date"></label>
+      </div>
+      <label class="check"><input type="checkbox" name="requiresRx"> Requiere receta médica</label>
+      <label>Médico tratante<input class="text" name="doctor" placeholder="Opcional"></label>
+      <label>Notas<textarea name="notes" rows="2" placeholder="Ej. tomar en ayunas"></textarea></label>
+    </div>
+    <div class="dialog-foot">
+      <button class="btn btn-secondary" value="cancel" formnovalidate>Cancelar</button>
+      <button class="btn btn-primary" value="save">Guardar</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Diálogo receta -->
+<dialog id="rxDialog">
+  <form method="dialog" id="rxForm">
+    <div class="panel-head"><div class="section-title" id="rxDialogTitle">Receta</div></div>
+    <div class="form">
+      <label>Medicamento<select class="filter" name="medId" required></select></label>
+      <div class="form-row">
+        <label>Médico<input class="text" name="doctor" placeholder="Ej. Dra. Pérez"></label>
+        <label>Farmacia / sistema<input class="text" name="pharmacy" list="pharmacyList" placeholder="Ej. Farmacia del barrio"></label>
+      </div>
+      <div class="form-row">
+        <label>Fecha emisión<input class="text" name="issueDate" type="date" required></label>
+        <label>Válida hasta<input class="text" name="validUntil" type="date" required></label>
+      </div>
+      <div class="form-row">
+        <label>Ingresada a farmacia<input class="text" name="registeredDate" type="date" required><span class="help">Desde esta fecha se habilita la primera compra.</span></label>
+        <label>Tipo<select class="filter" name="type"><option>Simple</option><option>Retenida</option><option>Cheque</option><option>Crónica / permanente</option></select></label>
+      </div>
+      <div class="form-row">
+        <label>N.º de compras autorizadas<input class="number" name="totalPurchases" type="number" min="1" step="1" required></label>
+        <label>Días entre compras<input class="number" name="intervalDays" type="number" min="1" step="1" required><span class="help">Ej. 30 para despacho mensual</span></label>
+      </div>
+      <div class="form-row">
+        <label>Cantidad por compra<input class="number" name="qtyPerPurchase" type="number" min="0" step="any"></label>
+        <label>Compras ya realizadas<input class="number" name="donePurchases" type="number" min="0" step="1" value="0"></label>
+      </div>
+      <label>Fecha de la última compra<input class="text" name="lastPurchase" type="date"><span class="help">Solo si ya hay compras realizadas. La próxima compra = última compra + días entre compras.</span></label>
+      <label>Notas<textarea name="notes" rows="2"></textarea></label>
+    </div>
+    <div class="dialog-foot">
+      <button class="btn btn-secondary" value="cancel" formnovalidate>Cancelar</button>
+      <button class="btn btn-primary" value="save">Guardar</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Diálogo compra -->
+<dialog id="buyDialog">
+  <form method="dialog" id="buyForm">
+    <div class="panel-head"><div><div class="section-title">Registrar compra</div><div class="muted" id="buyLabel"></div></div></div>
+    <div class="form">
+      <div class="form-row">
+        <label>Fecha<input class="text" name="date" type="date" required></label>
+        <label>Cantidad comprada<input class="number" name="qty" type="number" min="0" step="any" required></label>
+      </div>
+      <label>Nueva fecha de vencimiento del envase<input class="text" name="expiry" type="date"><span class="help">Opcional: se mantiene la fecha más próxima.</span></label>
+    </div>
+    <div class="dialog-foot">
+      <button class="btn btn-secondary" value="cancel" formnovalidate>Cancelar</button>
+      <button class="btn btn-primary" value="save">Registrar</button>
+    </div>
+  </form>
+</dialog>
+
+<datalist id="personList"></datalist>
+<datalist id="pharmacyList"></datalist>
+
+<script>
+/* ====== Utilidades de fecha (zona local) ====== */
+const pad = n => String(n).padStart(2,'0');
+const iso = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const parse = s => { if(!s) return null; const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); };
+const todayISO = () => iso(new Date());
+const addDays = (s, n) => { const d = parse(s); d.setDate(d.getDate() + Math.round(n)); return iso(d); };
+const diffDays = (a, b) => Math.round((Date.UTC(...ymd(b)) - Date.UTC(...ymd(a))) / 864e5); // b - a
+const ymd = s => { const [y,m,d] = s.split('-').map(Number); return [y, m-1, d]; };
+const fmt = s => s ? parse(s).toLocaleDateString('es-CL',{day:'2-digit',month:'short',year:'numeric'}) : '—';
+const fmtShort = s => parse(s).toLocaleDateString('es-CL',{day:'2-digit',month:'short'});
+const relDays = n => n === 0 ? 'hoy' : n === 1 ? 'mañana' : n === -1 ? 'ayer' : n > 0 ? `en ${n} días` : `hace ${-n} días`;
+const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const num = v => { const n = Number(v); return Number.isFinite(n) && n >= 0 ? n : 0; };
+const fmtNum = n => Number.isInteger(n) ? String(n) : n.toFixed(1).replace('.', ',');
+const F = (f, k) => f.elements.namedItem(k);
+const uid = () => Math.random().toString(36).slice(2, 10);
+
+/* ====== Datos ====== */
+const STORAGE_KEY = 'hogarstock.medicamentos.v1';
+const DEFAULT_SETTINGS = { criticalDays: 7, warnDays: 15, expiryDays: 45, rxExpiryDays: 20 };
+
+function demoData(){
+  const t = todayISO();
+  const meds = [
+    {id:'m1', name:'Losartán 50 mg', person:'Papá', unit:'comp.', qty:9, dailyDose:1, packSize:30, expiry:addDays(t,240), requiresRx:true, doctor:'Dr. Soto', countDate:t, notes:'En la mañana'},
+    {id:'m2', name:'Levotiroxina 100 mcg', person:'Mamá', unit:'comp.', qty:22, dailyDose:1, packSize:30, expiry:addDays(t,30), requiresRx:true, doctor:'Dra. Rivas', countDate:t, notes:'En ayunas'},
+    {id:'m3', name:'Metformina 850 mg', person:'Papá', unit:'comp.', qty:14, dailyDose:2, packSize:60, expiry:addDays(t,400), requiresRx:true, doctor:'Dr. Soto', countDate:t, notes:'Con desayuno y cena'},
+    {id:'m4', name:'Salbutamol inhalador', person:'Hijo', unit:'dosis', qty:120, dailyDose:2, packSize:200, expiry:addDays(t,300), requiresRx:true, doctor:'Dra. Fuentes', countDate:t, notes:''},
+    {id:'m5', name:'Paracetamol 500 mg', person:'Familia', unit:'comp.', qty:16, dailyDose:0, packSize:16, expiry:addDays(t,-5), requiresRx:false, doctor:'', countDate:t, notes:'Uso ocasional'},
+    {id:'m6', name:'Ibuprofeno jarabe 100 mg/5 ml', person:'Hija', unit:'ml', qty:60, dailyDose:0, packSize:100, expiry:addDays(t,180), requiresRx:false, doctor:'', countDate:t, notes:'Uso ocasional'},
+    {id:'m7', name:'Sertralina 50 mg', person:'Mamá', unit:'comp.', qty:5, dailyDose:1, packSize:30, expiry:addDays(t,500), requiresRx:true, doctor:'Dr. Lagos', countDate:t, notes:''}
+  ];
+  const rx = [
+    {id:'r1', medId:'m1', doctor:'Dr. Soto', pharmacy:'Farmacia A', type:'Crónica / permanente', issueDate:addDays(t,-70), validUntil:addDays(t,110), registeredDate:addDays(t,-68), totalPurchases:6, intervalDays:30, qtyPerPurchase:30, purchases:[{date:addDays(t,-68),qty:30},{date:addDays(t,-36),qty:30}], notes:''},
+    {id:'r2', medId:'m2', doctor:'Dra. Rivas', pharmacy:'Farmacia B', type:'Simple', issueDate:addDays(t,-95), validUntil:addDays(t,12), registeredDate:addDays(t,-90), totalPurchases:3, intervalDays:30, qtyPerPurchase:30, purchases:[{date:addDays(t,-90),qty:30},{date:addDays(t,-60),qty:30}], notes:''},
+    {id:'r3', medId:'m3', doctor:'Dr. Soto', pharmacy:'Farmacia A', type:'Crónica / permanente', issueDate:addDays(t,-40), validUntil:addDays(t,140), registeredDate:addDays(t,-40), totalPurchases:6, intervalDays:30, qtyPerPurchase:60, purchases:[{date:addDays(t,-24),qty:60}], notes:''},
+    {id:'r4', medId:'m7', doctor:'Dr. Lagos', pharmacy:'Farmacia B', type:'Retenida', issueDate:addDays(t,-120), validUntil:addDays(t,-10), registeredDate:addDays(t,-118), totalPurchases:3, intervalDays:30, qtyPerPurchase:30, purchases:[{date:addDays(t,-118),qty:30},{date:addDays(t,-88),qty:30},{date:addDays(t,-58),qty:30}], notes:'Receta retenida: requiere nueva receta física'}
+  ];
+  return { meds, rx, settings:{...DEFAULT_SETTINGS} };
+}
+
+function load(){
+  try { const raw = localStorage.getItem(STORAGE_KEY); if(raw){ const d = JSON.parse(raw); if(Array.isArray(d.meds) && Array.isArray(d.rx)) return {...d, settings:{...DEFAULT_SETTINGS, ...(d.settings||{})}}; } } catch(e){}
+  return demoData();
+}
+let state = load();
+function save(){ try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e){} }
+
+/* ====== Cálculos ====== */
+const medById = id => state.meds.find(m => m.id === id);
+
+function estStock(m){
+  const elapsed = Math.max(0, diffDays(m.countDate || todayISO(), todayISO()));
+  return Math.max(0, num(m.qty) - num(m.dailyDose) * elapsed);
+}
+function coverage(m){
+  const s = estStock(m), d = num(m.dailyDose);
+  if(d <= 0) return { days: Infinity, runOut: null };
+  const days = Math.floor(s / d);
+  return { days, runOut: addDays(todayISO(), days) };
+}
+
+function rxInfo(r){
+  const t = todayISO();
+  const used = r.purchases.length;
+  const remaining = Math.max(0, num(r.totalPurchases) - used);
+  const last = used ? [...r.purchases].map(p=>p.date).sort().at(-1) : null;
+  const next = last ? addDays(last, num(r.intervalDays)) : r.registeredDate;
+  const expired = r.validUntil && r.validUntil < t;
+  const expiresIn = r.validUntil ? diffDays(t, r.validUntil) : Infinity;
+  let status;
+  if(expired) status = {label:'Caducada', cls:'st-critical'};
+  else if(remaining === 0) status = {label:'Sin compras restantes', cls:'st-muted'};
+  else if(next > r.validUntil) status = {label:'Caduca antes de la próxima compra', cls:'st-critical'};
+  else if(next <= t) status = {label:'Compra habilitada', cls:'st-ok'};
+  else status = {label:`Habilitada ${relDays(diffDays(t,next))}`, cls:'st-info'};
+  const usable = !expired && remaining > 0 && next <= r.validUntil;
+  return { used, remaining, last, next, expired, expiresIn, usable, status };
+}
+function activeRx(m){
+  return state.rx.filter(r => r.medId === m.id).map(r => ({r, i: rxInfo(r)})).filter(x => x.i.usable).sort((a,b) => a.i.next.localeCompare(b.i.next))[0] || null;
+}
+
+function medStatus(m){
+  const s = state.settings, t = todayISO();
+  const stock = estStock(m), cov = coverage(m);
+  const expDays = m.expiry ? diffDays(t, m.expiry) : Infinity;
+  if(stock <= 0) return {label:'Agotado', cls:'st-critical', row:'row-critical', level:3};
+  if(expDays < 0) return {label:'Vencido', cls:'st-critical', row:'row-critical', level:3};
+  if(cov.days <= s.criticalDays) return {label:'Stock crítico', cls:'st-critical', row:'row-critical', level:2};
+  if(cov.days <= s.warnDays) return {label:'Stock bajo', cls:'st-low', row:'row-low', level:1};
+  if(expDays <= s.expiryDays) return {label:'Por vencer', cls:'st-low', row:'row-low', level:1};
+  return {label:'OK', cls:'st-ok', row:'', level:0};
+}
+
+function buildAlerts(){
+  const s = state.settings, t = todayISO();
+  const out = [];
+  const C = {crit:'var(--color-error)', warn:'var(--color-warning)', ok:'var(--color-success)', info:'var(--color-info)'};
+  for(const m of visibleMeds()){
+    const stock = estStock(m), cov = coverage(m), u = esc(m.unit);
+    const who = m.person ? ` · ${esc(m.person)}` : '';
+    const ar = activeRx(m);
+    const low = cov.days <= s.warnDays || stock <= 0;
+    const covTxt = stock <= 0 ? 'Agotado' : cov.days === Infinity ? '' : `Quedan ${fmtNum(stock)} ${u} (~${cov.days} días, hasta ${fmtShort(cov.runOut)})`;
+
+    if(low && m.requiresRx && !ar){
+      out.push({sev:3, c:C.crit, title:`Gestionar receta con médico: ${esc(m.name)}${who}`, body:`${covTxt}. No hay receta vigente con compras disponibles${m.doctor ? ` — contactar a ${esc(m.doctor)}` : ''}.`});
+    } else if(low && ar){
+      if(ar.i.next <= t) out.push({sev:2, c:C.ok, title:`Comprar ahora: ${esc(m.name)}${who}`, body:`${covTxt}. Compra habilitada en ${esc(ar.r.pharmacy || 'farmacia')} (${ar.i.remaining} restante${ar.i.remaining>1?'s':''}).`});
+      else if(cov.runOut && ar.i.next > cov.runOut) out.push({sev:3, c:C.crit, title:`Quiebre antes de la próxima compra: ${esc(m.name)}${who}`, body:`${covTxt}, pero la compra se habilita el ${fmtShort(ar.i.next)}. Pide adelantar despacho o una caja puente.`});
+      else out.push({sev:1, c:C.info, title:`Próxima compra el ${fmtShort(ar.i.next)}: ${esc(m.name)}${who}`, body:`${covTxt}. Alcanza hasta la fecha de habilitación.`});
+    } else if(low){
+      out.push({sev: cov.days <= s.criticalDays || stock <= 0 ? 2 : 1, c: cov.days <= s.criticalDays || stock <= 0 ? C.crit : C.warn, title:`Reponer (venta libre): ${esc(m.name)}${who}`, body: covTxt || 'Sin stock.'});
+    }
+
+    if(m.expiry){
+      const ed = diffDays(t, m.expiry);
+      if(ed < 0) out.push({sev:2, c:C.crit, title:`Vencido: ${esc(m.name)}${who}`, body:`Venció el ${fmt(m.expiry)}. Desechar en punto de retiro de medicamentos y reponer.`});
+      else if(ed <= s.expiryDays) out.push({sev:1, c:C.warn, title:`Vence ${relDays(ed)}: ${esc(m.name)}${who}`, body:`Fecha de vencimiento ${fmt(m.expiry)}.${cov.runOut && cov.runOut > m.expiry ? ' Se vencerá antes de terminarse.' : ''}`});
+    }
+  }
+  for(const r of state.rx){
+    const m = medById(r.medId); if(!m || !visibleMeds().includes(m)) continue;
+    const i = rxInfo(r);
+    if(!i.expired && i.remaining > 0 && i.expiresIn <= s.rxExpiryDays){
+      out.push({sev:1, c:C.warn, title:`Receta caduca ${relDays(i.expiresIn)}: ${esc(m.name)}`, body:`Quedan ${i.remaining} compra(s) sin usar. Solicitar renovación${r.doctor ? ` a ${esc(r.doctor)}` : ''} antes del ${fmt(r.validUntil)}.`});
+    }
+  }
+  return out.sort((a,b) => b.sev - a.sev);
+}
+
+/* ====== Render ====== */
+const $ = id => document.getElementById(id);
+function visibleMeds(){
+  const q = $('searchInput').value.trim().toLowerCase(), p = $('personFilter').value;
+  return state.meds.filter(m => (!p || m.person === p) && (!q || m.name.toLowerCase().includes(q) || (m.person||'').toLowerCase().includes(q)));
+}
+
+function renderFilters(){
+  const people = [...new Set(state.meds.map(m => m.person).filter(Boolean))].sort();
+  const cur = $('personFilter').value;
+  $('personFilter').innerHTML = '<option value="">Todas las personas</option>' + people.map(p => `<option ${p===cur?'selected':''} value="${esc(p)}">${esc(p)}</option>`).join('');
+  $('personList').innerHTML = people.map(p => `<option value="${esc(p)}">`).join('');
+  const pharmacies = [...new Set(state.rx.map(r => r.pharmacy).filter(Boolean))].sort();
+  $('pharmacyList').innerHTML = pharmacies.map(p => `<option value="${esc(p)}">`).join('');
+}
+
+function renderMetrics(alerts){
+  const meds = visibleMeds(), s = state.settings, t = todayISO();
+  const low = meds.filter(m => coverage(m).days <= s.warnDays || estStock(m) <= 0).length;
+  const needRx = meds.filter(m => m.requiresRx && (coverage(m).days <= s.warnDays || estStock(m) <= 0) && !activeRx(m)).length;
+  const exp = meds.filter(m => m.expiry && diffDays(t, m.expiry) <= s.expiryDays).length;
+  const enabled = state.rx.filter(r => meds.some(m => m.id === r.medId) && rxInfo(r).usable && rxInfo(r).next <= t).length;
+  const cards = [
+    ['Medicamentos', meds.length, 'En el botiquín', 'var(--color-primary)'],
+    ['Stock bajo', low, `≤ ${s.warnDays} días de cobertura`, low ? 'var(--color-warning)' : 'var(--color-success)'],
+    ['Gestionar receta', needRx, 'Requieren hora / receta médica', needRx ? 'var(--color-error)' : 'var(--color-success)'],
+    ['Por vencer / vencidos', exp, `Próximos ${s.expiryDays} días`, exp ? 'var(--color-warning)' : 'var(--color-success)'],
+    ['Compras habilitadas', enabled, 'Recetas listas para comprar hoy', 'var(--color-info)']
+  ];
+  $('metrics').innerHTML = cards.map(([a,v,b,c]) => `<article class="card" style="--accent:${c}"><div class="muted">${a}</div><div class="metric">${v}</div><div class="muted">${b}</div></article>`).join('');
+}
+
+function renderAlerts(alerts){
+  $('alertList').innerHTML = alerts.length
+    ? alerts.map(a => `<div class="alert" style="--c:${a.c}"><span class="dot"></span><div><strong>${a.title}</strong><div class="muted">${a.body}</div></div></div>`).join('')
+    : '<div class="empty">Sin alertas. Todo el botiquín está en orden.</div>';
+}
+
+function renderTimeline(){
+  const t = todayISO(), limit = addDays(t, 60), ev = [];
+  const meds = visibleMeds();
+  for(const m of meds){
+    const c = coverage(m);
+    if(c.runOut && c.runOut <= limit) ev.push({date:c.runOut, txt:`Se agota ${esc(m.name)}`, tag:m.person, cls:'st-critical'});
+    if(m.expiry && m.expiry <= limit) ev.push({date:m.expiry < t ? t : m.expiry, txt:`${m.expiry < t ? 'Vencido' : 'Vence'} ${esc(m.name)}`, tag:m.person, cls:'st-low'});
+  }
+  for(const r of state.rx){
+    const m = medById(r.medId); if(!m || !meds.includes(m)) continue;
+    const i = rxInfo(r);
+    if(i.usable && i.next <= limit) ev.push({date: i.next < t ? t : i.next, txt:`Compra habilitada ${esc(m.name)}`, tag:r.pharmacy, cls:'st-ok'});
+    if(!i.expired && r.validUntil <= limit && i.remaining > 0) ev.push({date:r.validUntil, txt:`Caduca receta ${esc(m.name)}`, tag:r.doctor, cls:'st-info'});
+  }
+  ev.sort((a,b) => a.date.localeCompare(b.date));
+  $('timeline').innerHTML = ev.length ? ev.map(e => {
+    const d = diffDays(t, e.date);
+    return `<div class="tl-item"><div class="tl-date">${fmtShort(e.date)}<small>${relDays(d)}</small></div><div><span class="status ${e.cls}">${e.txt}</span> ${e.tag ? `<span class="chip">${esc(e.tag)}</span>` : ''}</div></div>`;
+  }).join('') : '<div class="empty">Nada programado en los próximos 60 días.</div>';
+}
+
+function renderMeds(){
+  const s = state.settings, t = todayISO();
+  const rows = visibleMeds().sort((a,b) => medStatus(b).level - medStatus(a).level || coverage(a).days - coverage(b).days);
+  $('medBody').innerHTML = rows.length ? rows.map(m => {
+    const st = medStatus(m), stock = estStock(m), c = coverage(m), ar = activeRx(m);
+    const pct = c.days === Infinity ? 100 : Math.min(100, (c.days / (s.warnDays * 3)) * 100);
+    const barColor = c.days <= s.criticalDays ? 'var(--color-error)' : c.days <= s.warnDays ? 'var(--color-warning)' : 'var(--color-success)';
+    const expDays = m.expiry ? diffDays(t, m.expiry) : null;
+    let rxCell = '<span class="chip">Venta libre</span>';
+    if(m.requiresRx) rxCell = ar ? `<span class="status ${ar.i.status.cls}">${ar.i.status.label}</span>` : '<span class="status st-critical">Sin receta vigente</span>';
+    return `<tr class="${st.row}">
+      <td><strong>${esc(m.name)}</strong>${m.notes ? `<div class="muted">${esc(m.notes)}</div>` : ''}</td>
+      <td>${esc(m.person) || '—'}</td>
+      <td class="num"><input class="number" style="width:5.5rem" type="number" min="0" step="any" value="${+stock.toFixed(1)}" aria-label="Stock actual de ${esc(m.name)}" onchange="recount('${m.id}', this.value)"> <span class="muted">${esc(m.unit)}</span></td>
+      <td class="num">${num(m.dailyDose) ? `${fmtNum(num(m.dailyDose))} ${esc(m.unit)}` : '<span class="muted">Ocasional</span>'}</td>
+      <td class="num">${c.days === Infinity ? '<span class="muted">—</span>' : `<strong>${c.days} días</strong><div class="muted">hasta ${fmtShort(c.runOut)}</div><div class="bar"><span style="width:${pct}%;background:${barColor}"></span></div>`}</td>
+      <td class="num">${m.expiry ? `${fmt(m.expiry)}<div class="muted">${expDays < 0 ? 'vencido' : relDays(expDays)}</div>` : '—'}</td>
+      <td>${rxCell}</td>
+      <td><span class="status ${st.cls}">${st.label}</span></td>
+      <td><div class="actions">
+        <button class="icon-btn primary" onclick="openBuy('${m.id}')">+ Compra</button>
+        ${m.requiresRx ? `<button class="icon-btn" onclick="openRx(null,'${m.id}')">+ Receta</button>` : ''}
+        <button class="icon-btn" onclick="openMed('${m.id}')">Editar</button>
+        <button class="icon-btn" onclick="removeMed('${m.id}')">Eliminar</button>
+      </div></td>
+    </tr>`;
+  }).join('') : '<tr><td colspan="9" class="empty">No hay medicamentos. Agrega el primero con “+ Medicamento”.</td></tr>';
+}
+
+function renderRx(){
+  const meds = visibleMeds();
+  const rows = state.rx.filter(r => meds.some(m => m.id === r.medId)).map(r => ({r, i: rxInfo(r), m: medById(r.medId)}))
+    .sort((a,b) => (a.i.usable === b.i.usable ? a.i.next.localeCompare(b.i.next) : a.i.usable ? -1 : 1));
+  $('rxBody').innerHTML = rows.length ? rows.map(({r,i,m}) => `<tr>
+      <td><strong>${esc(m.name)}</strong><div class="muted">${esc(m.person)} · ${esc(r.type)}</div></td>
+      <td>${esc(r.doctor) || '—'}<div class="muted">${esc(r.pharmacy) || '—'}</div></td>
+      <td class="num">${fmt(r.registeredDate)}</td>
+      <td class="num">${fmt(r.validUntil)}<div class="muted">${i.expired ? 'caducada' : relDays(i.expiresIn)}</div></td>
+      <td class="num"><strong>${i.used}/${num(r.totalPurchases)}</strong><div class="muted">${i.last ? `última ${fmtShort(i.last)}` : 'sin compras'}</div></td>
+      <td class="num">${i.remaining && !i.expired ? `${fmt(i.next)}<div class="muted">cada ${num(r.intervalDays)} días</div>` : '—'}</td>
+      <td><span class="status ${i.status.cls}">${i.status.label}</span></td>
+      <td><div class="actions">
+        ${i.usable ? `<button class="icon-btn primary" onclick="openBuy('${m.id}','${r.id}')">Registrar compra</button>` : ''}
+        ${i.used ? `<button class="icon-btn" onclick="undoPurchase('${r.id}')">Deshacer última</button>` : ''}
+        <button class="icon-btn" onclick="openRx('${r.id}')">Editar</button>
+        <button class="icon-btn" onclick="removeRx('${r.id}')">Eliminar</button>
+      </div></td>
+    </tr>`).join('') : '<tr><td colspan="8" class="empty">No hay recetas registradas.</td></tr>';
+}
+
+function renderSettings(){
+  $('setCritical').value = state.settings.criticalDays;
+  $('setWarn').value = state.settings.warnDays;
+  $('setExpiry').value = state.settings.expiryDays;
+  $('setRxExpiry').value = state.settings.rxExpiryDays;
+}
+
+function rerender(){
+  save();
+  renderFilters();
+  const alerts = buildAlerts();
+  renderMetrics(alerts); renderAlerts(alerts); renderTimeline(); renderMeds(); renderRx();
+}
+
+/* ====== Acciones ====== */
+window.recount = (id, v) => { const m = medById(id); m.qty = num(v); m.countDate = todayISO(); rerender(); };
+window.removeMed = id => {
+  const m = medById(id), n = state.rx.filter(r => r.medId === id).length;
+  if(!confirm(`¿Eliminar ${m.name}${n ? ` y sus ${n} receta(s)` : ''}?`)) return;
+  state.meds = state.meds.filter(x => x.id !== id); state.rx = state.rx.filter(r => r.medId !== id); rerender();
+};
+window.removeRx = id => { if(confirm('¿Eliminar esta receta del registro?')){ state.rx = state.rx.filter(r => r.id !== id); rerender(); } };
+window.undoPurchase = id => {
+  const r = state.rx.find(x => x.id === id); if(!r.purchases.length) return;
+  r.purchases.sort((a,b) => a.date.localeCompare(b.date));
+  const p = r.purchases.at(-1);
+  if(!confirm(`¿Deshacer la compra del ${fmt(p.date)}? (no modifica el stock)`)) return;
+  r.purchases.pop(); rerender();
+};
+
+// Diálogo medicamento
+let editingMed = null;
+window.openMed = id => {
+  editingMed = id; const f = $('medForm'); f.reset();
+  $('medDialogTitle').textContent = id ? 'Editar medicamento' : 'Nuevo medicamento';
+  if(id){ const m = medById(id); for(const k of ['name','person','unit','dailyDose','packSize','expiry','doctor','notes']) F(f,k).value = m[k] ?? ''; f.qty.value = +estStock(m).toFixed(1); f.requiresRx.checked = !!m.requiresRx; }
+  $('medDialog').showModal();
+};
+$('medDialog').addEventListener('close', () => {
+  if($('medDialog').returnValue !== 'save') return;
+  const f = $('medForm');
+  const data = { name:F(f,'name').value.trim(), person:f.person.value.trim(), unit:f.unit.value, qty:num(f.qty.value), dailyDose:num(f.dailyDose.value), packSize:num(f.packSize.value), expiry:f.expiry.value, requiresRx:f.requiresRx.checked, doctor:f.doctor.value.trim(), notes:f.notes.value.trim(), countDate:todayISO() };
+  if(editingMed) Object.assign(medById(editingMed), data); else state.meds.push({id:uid(), ...data});
+  rerender();
+});
+
+// Diálogo receta
+let editingRx = null;
+window.openRx = (id, medId) => {
+  editingRx = id; const f = $('rxForm'); f.reset(); const t = todayISO();
+  f.medId.innerHTML = state.meds.map(m => `<option value="${m.id}">${esc(m.name)}${m.person ? ` · ${esc(m.person)}` : ''}</option>`).join('');
+  $('rxDialogTitle').textContent = id ? 'Editar receta' : 'Nueva receta';
+  if(id){
+    const r = state.rx.find(x => x.id === id), i = rxInfo(r);
+    for(const k of ['medId','doctor','pharmacy','issueDate','validUntil','registeredDate','type','totalPurchases','intervalDays','qtyPerPurchase','notes']) F(f,k).value = r[k] ?? '';
+    f.donePurchases.value = i.used; f.lastPurchase.value = i.last || '';
+  } else {
+    const m = medId ? medById(medId) : state.meds[0];
+    if(m){ f.medId.value = m.id; f.doctor.value = m.doctor || ''; f.qtyPerPurchase.value = m.packSize || ''; }
+    f.issueDate.value = t; f.registeredDate.value = t; f.validUntil.value = addDays(t, 180); f.totalPurchases.value = 6; f.intervalDays.value = 30; f.donePurchases.value = 0;
+  }
+  $('rxDialog').showModal();
+};
+$('rxForm').medId.addEventListener('change', e => { const m = medById(e.target.value); const f = $('rxForm'); if(m && !editingRx){ f.doctor.value = m.doctor || ''; f.qtyPerPurchase.value = m.packSize || ''; } });
+$('rxDialog').addEventListener('close', () => {
+  if($('rxDialog').returnValue !== 'save') return;
+  const f = $('rxForm');
+  const data = { medId:f.medId.value, doctor:f.doctor.value.trim(), pharmacy:f.pharmacy.value.trim(), type:F(f,'type').value, issueDate:f.issueDate.value, validUntil:f.validUntil.value, registeredDate:f.registeredDate.value, totalPurchases:Math.max(1, Math.round(num(f.totalPurchases.value))), intervalDays:Math.max(1, Math.round(num(f.intervalDays.value))), qtyPerPurchase:num(f.qtyPerPurchase.value), notes:f.notes.value.trim() };
+  const done = Math.round(num(f.donePurchases.value)), last = f.lastPurchase.value;
+  const existing = editingRx ? state.rx.find(x => x.id === editingRx) : null;
+  let purchases = existing ? [...existing.purchases].sort((a,b) => a.date.localeCompare(b.date)) : [];
+  // Ajustar historial según "compras realizadas" y "última compra"
+  if(purchases.length !== done || (done && purchases.at(-1)?.date !== last)){
+    const lastDate = last || (done ? data.registeredDate : null);
+    purchases = Array.from({length: done}, (_, k) => ({ date: addDays(lastDate, -data.intervalDays * (done - 1 - k)), qty: data.qtyPerPurchase }));
+  }
+  if(existing) Object.assign(existing, data, {purchases}); else state.rx.push({id:uid(), ...data, purchases});
+  rerender();
+});
+
+// Diálogo compra
+let buying = null;
+window.openBuy = (medId, rxId) => {
+  const m = medById(medId), r = rxId ? state.rx.find(x => x.id === rxId) : activeRx(m)?.r;
+  const usable = r && rxInfo(r).usable;
+  buying = { medId, rxId: usable ? r.id : null };
+  const f = $('buyForm'); f.reset();
+  f.date.value = todayISO(); f.qty.value = (usable && r.qtyPerPurchase) || m.packSize || '';
+  $('buyLabel').textContent = `${m.name}${usable ? ` · descuenta 1 compra de la receta (${r.pharmacy || 'farmacia'})` : m.requiresRx ? ' · sin receta vigente asociada' : ' · venta libre'}`;
+  $('buyDialog').showModal();
+};
+$('buyDialog').addEventListener('close', () => {
+  if($('buyDialog').returnValue !== 'save' || !buying) return;
+  const f = $('buyForm'), m = medById(buying.medId), qty = num(f.qty.value);
+  const prev = estStock(m);
+  m.qty = prev + qty; m.countDate = todayISO();
+  if(f.expiry.value && (!m.expiry || prev <= 0 || m.expiry < todayISO() || f.expiry.value < m.expiry)) m.expiry = f.expiry.value;
+  if(buying.rxId) state.rx.find(x => x.id === buying.rxId).purchases.push({date: f.date.value, qty});
+  buying = null; rerender();
+});
+
+// Ajustes
+for(const [id, key] of [['setCritical','criticalDays'],['setWarn','warnDays'],['setExpiry','expiryDays'],['setRxExpiry','rxExpiryDays']]){
+  $(id).addEventListener('change', e => { state.settings[key] = Math.max(1, Math.round(num(e.target.value)) || DEFAULT_SETTINGS[key]); if(state.settings.warnDays < state.settings.criticalDays) state.settings.warnDays = state.settings.criticalDays; renderSettings(); rerender(); });
+}
+
+// Respaldo
+$('exportBtn').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify({...state, exportedAt: new Date().toISOString()}, null, 2)], {type:'application/json'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `botiquin-${todayISO()}.json`; a.click(); URL.revokeObjectURL(a.href);
+});
+$('importBtn').addEventListener('click', () => $('importFile').click());
+$('importFile').addEventListener('change', async e => {
+  const file = e.target.files[0]; if(!file) return;
+  try {
+    const d = JSON.parse(await file.text());
+    if(!Array.isArray(d.meds) || !Array.isArray(d.rx)) throw new Error('Formato no válido');
+    if(!confirm(`Importar ${d.meds.length} medicamentos y ${d.rx.length} recetas? Reemplaza los datos actuales.`)) return;
+    state = { meds: d.meds, rx: d.rx.map(r => ({...r, purchases: r.purchases || []})), settings: {...DEFAULT_SETTINGS, ...(d.settings||{})} };
+    renderSettings(); rerender();
+  } catch(err){ alert('No se pudo importar: ' + err.message); }
+  e.target.value = '';
+});
+$('resetBtn').addEventListener('click', () => { if(confirm('¿Reemplazar todos los datos por los de ejemplo?')){ state = demoData(); renderSettings(); rerender(); } });
+
+// Tema
+const THEME_KEY = 'hogarstock.theme';
+function applyTheme(t){ document.documentElement.setAttribute('data-theme', t); }
+try { applyTheme(localStorage.getItem(THEME_KEY) || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')); } catch(e){}
+$('themeToggle').addEventListener('click', () => { const t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'; applyTheme(t); try { localStorage.setItem(THEME_KEY, t); } catch(e){} });
+
+$('addMedBtn').addEventListener('click', () => openMed(null));
+$('addRxBtn').addEventListener('click', () => state.meds.length ? openRx(null) : alert('Primero agrega un medicamento.'));
+$('searchInput').addEventListener('input', rerender);
+$('personFilter').addEventListener('change', rerender);
+$('todayLabel').textContent = new Date().toLocaleDateString('es-CL', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+
+renderSettings();
+rerender();
+</script>
+</body>
+</html>

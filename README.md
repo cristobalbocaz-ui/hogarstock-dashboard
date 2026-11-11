@@ -10,6 +10,25 @@ Dashboard estático para administrar inventario del hogar con GitHub Pages.
 - Permite agregar, duplicar y eliminar productos.
 - Exporta datos a CSV y JSON.
 
+## Módulo Medicamentos (`medicamentos.html`)
+Botiquín familiar enlazado desde el menú lateral.
+
+- **Stock por medicamento** en comprimidos, cápsulas, ml, gotas, dosis, etc., con persona que lo usa.
+- **Descuento automático**: el stock estimado baja según la dosis diaria desde el último conteo; al editar la cifra se registra un nuevo conteo.
+- **Cobertura en días** y fecha estimada de quiebre. Umbrales configurables (rojo / amarillo).
+- **Fechas de vencimiento** con aviso anticipado y alerta de vencidos.
+- **Alertas accionables**:
+  - *Gestionar receta con médico*: stock bajo, requiere receta y no hay receta vigente con compras disponibles.
+  - *Comprar ahora*: stock bajo y la compra ya está habilitada en farmacia.
+  - *Quiebre antes de la próxima compra*: se agota antes de la fecha habilitada.
+  - *Receta por caducar* con compras sin usar.
+- **Registro de recetas** ingresadas a farmacia: médico, farmacia, tipo, vigencia, N.º de compras autorizadas, días entre compras y **fecha en que se habilita la próxima compra** (última compra + intervalo).
+- **Registrar compra** desde la receta: suma al stock y descuenta una compra autorizada.
+- **Próximas fechas** (60 días): compras habilitadas, quiebres, vencimientos y caducidad de recetas.
+- Datos en `localStorage` del navegador, con **Exportar / Importar JSON** para respaldo o para llevarlos a otro dispositivo.
+
+> Los datos de ejemplo son ficticios; usa "Restaurar datos de ejemplo" o edita/elimina para cargar los tuyos.
+
 ## Publicación rápida en GitHub Pages
 1. Crea un repositorio nuevo en GitHub, por ejemplo `hogarstock-dashboard`.
 2. Sube el contenido de esta carpeta al repositorio.
